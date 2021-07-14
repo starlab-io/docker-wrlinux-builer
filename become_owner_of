@@ -1,0 +1,15 @@
+# Bash source script
+# cd to a directory, become the owner of that directory
+
+WORKDIR=$1
+WORKDIR_GID=`stat -c %g $WORKDIR`
+WORKDIR_UID=`stat -c %u $WORKDIR`
+
+if [ $UID -ne 0 ]; then
+    # not root. nothing we can do
+    return
+fi
+
+groupadd -g $WORKDIR_GID build                                                                                                                                                                
+useradd -g build -u $WORKDIR_UID -m build                                                                                                                                                     
+exec sudo -sPEH -u build
