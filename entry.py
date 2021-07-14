@@ -16,6 +16,7 @@ etc.)
 import os
 import sys
 import pwd
+import shlex
 
 def set_environment(uid):
     try:
@@ -65,10 +66,12 @@ def set_credentials():
     os.setgid(gid)
     os.setuid(uid)
 
-def exec_command(cmdline):
-    if not cmdline:
-        cmdline = [ os.environ.get('SHELL', '/bin/bash') ]
-    os.execv(cmdline[0], cmdline)
+def exec_command(command):
+    cmd = [ os.environ.get('SHELL', '/bin/bash') ]
+    if command:
+        cmd.append('-c')
+        cmd.append(' '.join(shlex.quote(a) for a in command))
+    os.execv(cmd[0], cmd)
 
 def main():
     set_credentials()
