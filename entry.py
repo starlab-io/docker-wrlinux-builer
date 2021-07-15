@@ -1,15 +1,12 @@
 #!/usr/bin/python3
 
 """
-This entry point sets up the user and group(s) in a more flexible way than
-crops/poky.
+This entry point sets supplemental group(s) in a more flexible way than
+crops/poky, and in a way that works with our GitLab runners. We can't
+statically set docker container groups through the GitLab runner's config,
+unfortunately, so we need to do so dynamically on container startup.
 
-If the current user is root, then we set our UID to match the owner of the
-current working directory. We add the GID of the current working directory as
-our primary group. We maintain all groups that might have been passed along
-with --group-add when running the container.
-
-We will add groups of a few other files and directories (kvm, sstate cache,
+We will add groups of a few files and directories (kvm, sstate cache,
 etc.)
 """
 
@@ -27,18 +24,18 @@ def set_environment(uid):
         os.environ['HOME'] = ent.pw_dir
         os.environ['SHELL'] = ent.pw_shell
 
-def gather_supplemental_groups(gid):
+def gather_supplemental_groups():
     groups = set(os.getgroups())
-    groups.add(os.getgid()) # keep if not root
-    groups.discard(0) # don't keep root group by default
-    groups.add(gid) # always keep final group
+    groups.add(os.getgid())
 
     # Gather groups based on interesting files/dirs
     extras = [
+        os.getcwd(),
         '/dev/kvm',
         '$SSTATE_DIR',
         '/var/lib/sstate',
         '$CI_PROJECT_DIR',
+        '$STARLAB_LAYERS',
     ]
     for e in extras:
         path = os.path.expandvars(e)
@@ -51,20 +48,9 @@ def gather_supplemental_groups(gid):
 
 def set_credentials():
     if os.getuid() != 0:
-        return # not root, leave as is
-
-    # Get final credentials
-    stat = os.stat(os.getcwd())
-    uid = stat.st_uid
-    gid = stat.st_gid
-    groups = gather_supplemental_groups(gid)
-
-    set_environment(uid)
-
-    # Set credentials
+        return
+    groups = gather_supplemental_groups()
     os.setgroups(groups)
-    os.setgid(gid)
-    os.setuid(uid)
 
 def exec_command(command):
     cmd = [ os.environ.get('SHELL', '/bin/bash') ]
