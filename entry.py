@@ -14,6 +14,7 @@ import os
 import sys
 import pwd
 import shlex
+import re
 
 def set_environment(uid):
     try:
@@ -24,9 +25,28 @@ def set_environment(uid):
         os.environ['HOME'] = ent.pw_dir
         os.environ['SHELL'] = ent.pw_shell
 
-def gather_supplemental_groups():
+def get_uid(user):
+    m = re.fullmatch(r'(\d+):(\d+)', user)
+    if m:
+        uid = int(m.group(1))
+        gid = int(m.group(2))
+        return uid, gid
+
+    try:
+        uid = int(user)
+        try:
+            ent = pwd.getpwuid(uid)
+            return uid, ent.pw_gid
+        except KeyError:
+            return uid, uid
+    except ValueError:
+        ent = pwd.getpwnam(user)
+        return ent.pw_uid, ent.pw_gid
+
+def gather_supplemental_groups(gid):
     groups = set(os.getgroups())
-    groups.add(os.getgid())
+    groups.discard(0) # don't keep root by default
+    groups.add(gid)
 
     # Gather groups based on interesting files/dirs
     extras = [
@@ -46,11 +66,18 @@ def gather_supplemental_groups():
 
     return sorted(groups)
 
-def set_credentials():
+def set_credentials(user):
     if os.getuid() != 0:
+        print("Cannot set credentials: not root")
         return
-    groups = gather_supplemental_groups()
+    uid, gid = get_uid(user)
+    groups = gather_supplemental_groups(gid)
+
+    set_environment(uid)
     os.setgroups(groups)
+    if not os.environ.get('WRLINUX_ROOT'):
+        os.setgid(gid)
+        os.setuid(uid)
 
 def exec_command(command):
     cmd = [ os.environ.get('SHELL', '/bin/bash') ]
@@ -60,8 +87,10 @@ def exec_command(command):
     os.execv(cmd[0], cmd)
 
 def main():
-    set_credentials()
-    exec_command(sys.argv[1:])
+    user = sys.argv[1]
+    command = sys.argv[2:]
+    set_credentials(user)
+    exec_command(command)
 
 if __name__ == '__main__':
     main()

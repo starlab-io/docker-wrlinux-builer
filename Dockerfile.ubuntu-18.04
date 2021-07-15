@@ -7,7 +7,7 @@ RUN apt-get update && \
         qemu-system && \
     rm -rf /var/lib/apt/lists/*
 COPY entry.py /usr/bin
-ENTRYPOINT ["/usr/bin/entry.py"]
+ENTRYPOINT ["/usr/bin/entry.py", "yoctouser"]
 WORKDIR /
 
 # Environment variables for our build setup
