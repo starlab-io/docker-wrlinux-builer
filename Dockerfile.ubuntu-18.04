@@ -4,6 +4,7 @@ FROM crops/yocto:ubuntu-18.04-base
 USER root
 RUN apt-get update && \
     apt-get install -y \
+        pigz \
         qemu-system && \
     rm -rf /var/lib/apt/lists/*
 COPY entry.py /usr/bin
