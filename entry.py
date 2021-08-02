@@ -23,7 +23,10 @@ def set_environment(uid):
         os.environ.pop('HOME', '')
     else:
         os.environ['HOME'] = ent.pw_dir
-        os.environ['SHELL'] = ent.pw_shell
+        if ent.pw_shell:
+            os.environ['SHELL'] = ent.pw_shell
+        else:
+            os.environ.pop('SHELL', '')
 
 def get_uid(user):
     m = re.fullmatch(r'(\d+):(\d+)', user)
