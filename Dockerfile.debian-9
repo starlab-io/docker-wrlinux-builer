@@ -12,6 +12,7 @@ ENTRYPOINT ["/usr/bin/entry.py", "yoctouser"]
 WORKDIR /
 
 # Environment variables for our build setup
+ENV WRLX_ALL_LAYERS=/opt/wrlinux/LTS19
 ENV SSTATE_DIR=/var/lib/sstate
 ENV GPG_PATH=/tmp/gpg_path
 ENV BB_ENV_EXTRAWHITE="$BB_ENV_EXTRAWHITE SSTATE_DIR STARLAB_LAYERS GPG_PATH"
