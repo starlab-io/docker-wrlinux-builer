@@ -17,17 +17,26 @@ import grp
 import shlex
 import re
 
-def set_environment(uid):
+def set_environment(uid, gid):
     try:
         ent = pwd.getpwuid(uid)
     except KeyError:
         os.environ.pop('HOME', '')
+        os.environ['USER'] = str(uid)
     else:
         os.environ['HOME'] = ent.pw_dir
+        os.environ['USER'] = ent.pw_name
         if ent.pw_shell:
             os.environ['SHELL'] = ent.pw_shell
         else:
             os.environ.pop('SHELL', '')
+
+    try:
+        ent = grp.getgrgid(gid)
+    except KeyError:
+        os.environ['GROUPS'] = str(gid)
+    else:
+        os.environ['GROUPS'] = ent.gr_name
 
 def get_uid(user):
     m = re.fullmatch(r'(\d+):(\d+)', user)
@@ -92,7 +101,7 @@ def set_credentials(user):
     uid, gid = get_uid(user)
     groups = gather_supplemental_groups(uid, gid)
 
-    set_environment(uid)
+    set_environment(uid, gid)
     os.setgroups(groups)
     if not os.environ.get('WRLINUX_ROOT'):
         os.setgid(gid)
