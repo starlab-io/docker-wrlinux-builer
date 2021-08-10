@@ -13,6 +13,7 @@ etc.)
 import os
 import sys
 import pwd
+import grp
 import shlex
 import re
 
@@ -46,10 +47,25 @@ def get_uid(user):
         ent = pwd.getpwnam(user)
         return ent.pw_uid, ent.pw_gid
 
-def gather_supplemental_groups(gid):
-    groups = set(os.getgroups())
+def get_user_groups(uid):
+    try:
+        user = pwd.getpwuid(uid).pw_name
+    except KeyError:
+        return [] # not in /etc/passwd, so N/A
+
+    groups = []
+    for g in grp.getgrall():
+        if user in g.gr_mem:
+            groups.append(g.gr_gid)
+    return groups
+
+def gather_supplemental_groups(uid, gid):
+    groups = set(os.getgroups()) # currently assigned gids
     groups.discard(0) # don't keep root by default
     groups.add(gid)
+
+    # Gather groups based on /etc/group
+    groups.update(get_user_groups(uid))
 
     # Gather groups based on interesting files/dirs
     extras = [
@@ -74,7 +90,7 @@ def set_credentials(user):
         print("Cannot set credentials: not root")
         return
     uid, gid = get_uid(user)
-    groups = gather_supplemental_groups(gid)
+    groups = gather_supplemental_groups(uid, gid)
 
     set_environment(uid)
     os.setgroups(groups)

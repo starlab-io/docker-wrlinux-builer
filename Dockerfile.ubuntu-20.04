@@ -4,12 +4,16 @@ FROM crops/yocto:ubuntu-20.04-base
 USER root
 RUN apt-get update && \
     apt-get install -y \
+        sudo \
         pigz \
         qemu-system && \
     rm -rf /var/lib/apt/lists/*
 COPY entry.py /usr/bin
+COPY sudoers /etc/sudoers
 ENTRYPOINT ["/usr/bin/entry.py", "yoctouser"]
 WORKDIR /
+
+RUN adduser yoctouser sudo
 
 # Environment variables for our build setup
 ENV WRLX_ALL_LAYERS=/opt/wrlinux/LTS19
