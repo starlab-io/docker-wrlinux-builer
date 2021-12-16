@@ -7,6 +7,8 @@ RUN apt-get update && \
         sudo \
         iptables \
         pigz \
+        python3-pip \
+        python3-venv \
         qemu-system && \
     rm -rf /var/lib/apt/lists/*
 COPY entry.py /usr/bin
