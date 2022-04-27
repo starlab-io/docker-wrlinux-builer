@@ -1,10 +1,15 @@
-# Same as what poky does: must explicitly delcare the base OS
+##############################################################################
+# AUTO-GENERATED FILE.  DO NOT EDIT.
+# Edit Dockerfile.in, re-run make, and commit results.
+##############################################################################
 
-FROM crops/yocto:debian-9-base
+# Same as what poky does: must explicitly delcare the base OS
+FROM crops/poky:debian-9
 USER root
 RUN apt-get update && \
     apt-get install -y \
         sudo \
+        iptables \
         parallel \
         pigz \
         python3-pip \

@@ -1,10 +1,10 @@
 ##############################################################################
-# AUTO-GENERATED FILE.  DO NOT EDIT.
-# Edit Dockerfile.in, re-run make, and commit results.
+WARNING_BANNER_1
+WARNING_BANNER_2
 ##############################################################################
 
 # Same as what poky does: must explicitly delcare the base OS
-FROM crops/poky:ubuntu-20.04
+FROM BASE_IMAGE
 USER root
 RUN apt-get update && \
     apt-get install -y \
