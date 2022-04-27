@@ -4,7 +4,7 @@
 ##############################################################################
 
 # Same as what poky does: must explicitly delcare the base OS
-FROM crops/poky:debian-9
+FROM crops/yocto:debian-9-base
 USER root
 RUN apt-get update && \
     apt-get install -y \

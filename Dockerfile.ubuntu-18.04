@@ -4,7 +4,7 @@
 ##############################################################################
 
 # Same as what poky does: must explicitly delcare the base OS
-FROM crops/poky:ubuntu-18.04
+FROM crops/yocto:ubuntu-18.04-base
 USER root
 RUN apt-get update && \
     apt-get install -y \

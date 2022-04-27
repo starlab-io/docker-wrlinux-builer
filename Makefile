@@ -23,5 +23,5 @@ Dockerfile.debian-9: M4_FLAGS += -DBASE_IMAGE=crops/yocto:debian-9-base
 
 # Results in a harmless circular dependency warning. I don't care enough to fix
 # it.
-$(TARGETS): Dockerfile.in
+$(TARGETS): Dockerfile.in Makefile
 	m4 $(M4_FLAGS) $< > $@
