@@ -15,11 +15,11 @@ TARGETS = Dockerfile.ubuntu-20.04 \
 
 all: $(TARGETS)
 
-Dockerfile.ubuntu-20.04: M4_FLAGS += -DBASE_IMAGE=crops/poky:ubuntu-20.04
+Dockerfile.ubuntu-20.04: M4_FLAGS += -DBASE_IMAGE=crops/yocto:ubuntu-20.04-base
 
-Dockerfile.ubuntu-18.04: M4_FLAGS += -DBASE_IMAGE=crops/poky:ubuntu-18.04
+Dockerfile.ubuntu-18.04: M4_FLAGS += -DBASE_IMAGE=crops/yocto:ubuntu-18.04-base
 
-Dockerfile.debian-9: M4_FLAGS += -DBASE_IMAGE=crops/poky:debian-9
+Dockerfile.debian-9: M4_FLAGS += -DBASE_IMAGE=crops/yocto:debian-9-base
 
 # Results in a harmless circular dependency warning. I don't care enough to fix
 # it.
