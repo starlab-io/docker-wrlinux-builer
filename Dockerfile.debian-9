@@ -4,6 +4,7 @@ FROM crops/yocto:debian-9-base
 USER root
 RUN apt-get update && \
     apt-get install -y \
+        dnsutils \
         sudo \
         parallel \
         pigz \
